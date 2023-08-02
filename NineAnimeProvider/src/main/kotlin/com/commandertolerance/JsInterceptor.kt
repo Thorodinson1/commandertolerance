@@ -1,4 +1,4 @@
-package com.Thorodinson1
+package com.commandertolerance
 
 
 import android.annotation.SuppressLint
@@ -14,7 +14,7 @@ import com.lagradost.cloudstream3.USER_AGENT
 import com.lagradost.cloudstream3.utils.Coroutines
 import com.lagradost.cloudstream3.utils.Coroutines.main
 import com.lagradost.nicehttp.requestCreator
-import com.Thorodinson1.NineAnimeProviderPlugin.Companion.postFunction
+import com.commandertolerance.NineAnimeProviderPlugin.Companion.postFunction
 import kotlinx.coroutines.runBlocking
 import okhttp3.*
 import java.util.concurrent.CountDownLatch
