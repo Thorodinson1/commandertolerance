@@ -1,4 +1,4 @@
-package com.Thorodinson1
+package com.commandertolerance
 
 import android.util.Log
 import com.fasterxml.jackson.annotation.JsonProperty
