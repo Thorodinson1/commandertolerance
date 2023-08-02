@@ -2,7 +2,7 @@ package com.Thorodinson1
 
 import android.util.Log
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.lagradost.SflixProvider.Companion.extractRabbitStream
+import com.Thorodinson1.SflixProvider.Companion.extractRabbitStream
 import com.lagradost.SflixProvider.Companion.runSflixExtractorVerifierJob
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.LoadResponse.Companion.addAniListId
