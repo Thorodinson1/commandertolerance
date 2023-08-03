@@ -12,7 +12,7 @@ import kotlinx.coroutines.delay
 
 class NineAnimeProvider : MainAPI() {
     override var mainUrl = "https://aniwave.to"
-    override var name = "9Anime"
+    override var name = "Animwave"
     override val hasMainPage = true
     override val hasChromecastSupport = true
     override val hasDownloadSupport = true
