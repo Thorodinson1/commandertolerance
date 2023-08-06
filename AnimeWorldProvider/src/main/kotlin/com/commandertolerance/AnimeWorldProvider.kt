@@ -45,7 +45,7 @@ class AnimeWorldProvider : MainAPI() { // all providers must be an instance of M
         request: MainPageRequest
     ): HomePageResponse {
         val document = app.get(request.data + page).document
-        val home = document.select("rank-math-schema-pro").mapNotNull {
+        val home = document.select("sm:px-4 px-0 mt-2 md:flex justify-between w-full pb-10").mapNotNull {
             it.toSearchResult()
         }
         return newHomePageResponse(request.name, home)
