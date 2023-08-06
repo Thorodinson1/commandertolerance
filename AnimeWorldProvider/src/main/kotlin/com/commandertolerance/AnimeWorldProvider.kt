@@ -45,7 +45,7 @@ class AnimeWorldProvider : MainAPI() { // all providers must be an instance of M
         request: MainPageRequest
     ): HomePageResponse {
         val document = app.get(request.data + page).document
-        val home = document.select("swiper-wrapper > div").mapNotNull {
+        val home = document.select(".swiper-wrapper > div").mapNotNull {
             it.toSearchResult()
         }
         return newHomePageResponse(request.name, home)
