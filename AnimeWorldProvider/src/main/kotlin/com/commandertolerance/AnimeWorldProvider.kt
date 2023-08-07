@@ -45,7 +45,7 @@ class AnimeWorldProvider : MainAPI() { // all providers must be an instance of M
         request: MainPageRequest
     ): HomePageResponse {
         val document = app.get(request.data + page).document
-        val home = document.select("swiper-slide.md:min-w-[14rem]").mapNotNull {
+        val home = document.select("div.swiper-slide").mapNotNull {
             it.toSearchResult()
         }
         return newHomePageResponse(request.name, home)
@@ -66,7 +66,7 @@ class AnimeWorldProvider : MainAPI() { // all providers must be an instance of M
     override suspend fun search(query: String): List<SearchResponse> {
         val document = app.get("$mainUrl/?s=$query").document
 
-        return document.select("article").mapNotNull {
+        return document.select("div.swiper-slide").mapNotNull {
             it.toSearchResult()
         }
     }
