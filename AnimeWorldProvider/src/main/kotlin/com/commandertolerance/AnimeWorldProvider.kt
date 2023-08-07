@@ -45,7 +45,7 @@ class AnimeWorldProvider : MainAPI() { // all providers must be an instance of M
         request: MainPageRequest
     ): HomePageResponse {
         val document = app.get(request.data + page).document
-        val home = document.select(".swiper-slide.md\:min-w-\[14rem\]").mapNotNull {
+        val home = document.select(".swiper-slide").mapNotNull {
             it.toSearchResult()
         }
         return newHomePageResponse(request.name, home)
@@ -66,7 +66,7 @@ class AnimeWorldProvider : MainAPI() { // all providers must be an instance of M
     override suspend fun search(query: String): List<SearchResponse> {
         val document = app.get("$mainUrl/?s=$query").document
 
-        return document.select(".swiper-slide.md\:min-w-\[14rem\]").mapNotNull {
+        return document.select(".swiper-slide").mapNotNull {
             it.toSearchResult()
         }
     }
@@ -88,7 +88,7 @@ class AnimeWorldProvider : MainAPI() { // all providers must be an instance of M
         val trailer = fixUrlNull(document.select("iframe").attr("src"))
         val rating = document.select("span.num").text().toRatingInt()
         //val actors = document.select("#cast > div:nth-child(4)").map { it.text() }
-        val recommendations = document.select("article").mapNotNull {
+        val recommendations = document.select(".swiper-slide").mapNotNull {
             it.toSearchResult()
         }
 
@@ -106,7 +106,7 @@ class AnimeWorldProvider : MainAPI() { // all providers must be an instance of M
                     headers = mapOf("X-Requested-With" to "XMLHttpRequest")
                 ).document
 
-                episodes += html.select("article").mapNotNull {
+                episodes += html.select(".swiper-slide").mapNotNull {
                     val href = fixUrl(it.select("a").attr("href") ?: return null)
                     val name = it.select("h2").text().trim()
                     val thumbs = it.select("img").attr("src")
