@@ -7,7 +7,7 @@ cloudstream {
     // All of these properties are optional, you can safely remove them
 
     description = "Watch 9anime "
-    authors = listOf("Stormunblessed, KillerDogeEmpire, Enimax, Chokerman")extension
+    authors = listOf("Stormunblessed, KillerDogeEmpire, Enimax, Chokerman")
 
     /**
      * Status int as the following:
