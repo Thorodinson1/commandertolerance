@@ -1,4 +1,5 @@
-package com.commandertolerance
+package com.KillerDogeEmpire
+
 
 
 import com.fasterxml.jackson.annotation.JsonProperty
@@ -8,11 +9,17 @@ import com.lagradost.cloudstream3.utils.*
 import org.jsoup.Jsoup
 import com.lagradost.cloudstream3.utils.M3u8Helper.Companion.generateM3u8
 import kotlinx.coroutines.delay
+import okhttp3.MediaType
+import okhttp3.RequestBody
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONObject
+import java.net.URLEncoder
 
 
 class NineAnimeProvider : MainAPI() {
     override var mainUrl = "https://aniwave.to"
-    override var name = "Animwave"
+    override var name = "Aniwave/9Anime"
     override val hasMainPage = true
     override val hasChromecastSupport = true
     override val hasDownloadSupport = true
@@ -24,7 +31,7 @@ class NineAnimeProvider : MainAPI() {
         fun encode(input: String): String =
             java.net.URLEncoder.encode(input, "utf-8").replace("+", "%2B")
         private fun decode(input: String): String = java.net.URLDecoder.decode(input, "utf-8")
-        private const val consuNineAnimeApi = "https://api.consumet.org/anime/9anime"
+//        private const val consuNineAnimeApi = "https://api.consumet.org/anime/9anime"
 
     }
 
@@ -129,7 +136,7 @@ class NineAnimeProvider : MainAPI() {
            )
        } */
     override suspend fun load(url: String): LoadResponse {
-        val validUrl = url.replace("https://aniwave.to", mainUrl)
+        val validUrl = url.replace("https://9anime.to", mainUrl)
         val doc = app.get(validUrl).document
 
         val meta = doc.selectFirst("#w-info") ?: throw ErrorLoadingException("Could not find info")
@@ -312,14 +319,14 @@ class NineAnimeProvider : MainAPI() {
         @JsonProperty("vrfQuery" ) var vrfQuery : String
     )
     private suspend fun consumetVrf(input: String): ConsumetVrfHelper{
-        return app.get("https://api.consumet.org/anime/9anime/helper?query=$input&action=vrf").parsed<ConsumetVrfHelper>()
+        return app.get("https://9anime.eltik.net/vrf?query=$input&apikey=lagrapps").parsed<ConsumetVrfHelper>()
     }
     private suspend fun decUrlConsu(serverID: String):String {
         val sa = consumetVrf(serverID)
         val encID = sa.url
         val videncrr = app.get("$mainUrl/ajax/server/$serverID?${sa.vrfQuery}=${encode(encID)}").parsed<Links>()
         val encUrl = videncrr.result?.url
-        val ses = app.get("https://api.consumet.org/anime/9anime/helper?query=$encUrl&action=decrypt").text
+        val ses = app.get("https://9anime.eltik.net/decrypt?query=$encUrl&apikey=lagrapps").text
         return ses.substringAfter("url\":\"").substringBefore("\"")
     }
 
@@ -353,13 +360,22 @@ class NineAnimeProvider : MainAPI() {
                     val asss = decUrlConsu(sId)
                     val regex = Regex("(.+?/)e(?:mbed)?/([a-zA-Z0-9]+)")
                     val group = regex.find(asss)!!.groupValues
-                    val vizId = group[2]
-                    val action = if (vids) "vizcloud" else "mcloud"
-                    val ssae = app.get("https://api.consumet.org/anime/9anime/helper?query=$vizId&action=$action").text
+                    val comps = asss.split("/");
+                    val vizId = comps[comps.size - 1];
+                    val action = if (vids) "rawVizcloud" else "rawMcloud"
+                    val futoken = app.get("https://vidstream.pro/futoken").text
+                    val encodedFutoken = URLEncoder.encode(futoken, "UTF-8")
+                    val map = mapOf("query" to vizId, "futoken" to futoken)
+                    val jsonBody = JSONObject(map).toString()
+                    val mediaType = "application/json; charset=utf-8".toMediaType()
+                    val ssaeUrl = app.post("https://9anime.eltik.net/$action?apikey=lagrapps", mapOf("Content-Type" to "application/x-www-form-urlencoded"), requestBody = RequestBody.Companion.create(mediaType, jsonBody)).text.substringAfter("rawURL\"").substringAfter("\"").substringBefore("\"");
+
+                    val ref = if (vids) "https://vidstream.pro/" else "https://mcloud.to/"
+
+                    val ssae = app.get(ssaeUrl, headers = mapOf("Referer" to ref)).text
                     val reg2 = Regex("((https|http).*list.*(m3u8|.mp4))")
                     val m3u8 = reg2.find(ssae)?.destructured?.component1() ?: ""
 
-                    val ref = if (vids) "https://vidstream.pro/" else "https://mcloud.to/"
                     val name = if (vids) "Vidstream" else "MyCloud"
                     generateM3u8(
                         name,

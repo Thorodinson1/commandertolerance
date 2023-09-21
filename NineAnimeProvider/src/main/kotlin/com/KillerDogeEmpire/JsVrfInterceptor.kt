@@ -1,4 +1,4 @@
-package com.commandertolerance
+package com.KillerDogeEmpire
 
 import android.annotation.SuppressLint
 import android.os.Handler
@@ -7,7 +7,7 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import com.lagradost.cloudstream3.AcraApplication.Companion.context
-import com.commandertolerance.NineAnimeProviderPlugin.Companion.postFunction
+import com.KillerDogeEmpire.NineAnimeProviderPlugin.Companion.postFunction
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
