@@ -439,7 +439,11 @@ open class SflixProvider : MainAPI() {
             return code.reversed()
         }
 
-
+         suspend fun getKey(): String? {
+            return app.get("https://raw.githubusercontent.com/enimax-anime/key/e4/key.txt")
+                .text
+        }
+         
         /**
          * Generates a session
          * 1 Get request.
