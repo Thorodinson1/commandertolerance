@@ -17,7 +17,7 @@ import org.json.JSONObject
 import java.net.URLEncoder
 
 
-class NineAnimeProvider : MainAPI() {
+class AniwaveProvider : MainAPI() {
     override var mainUrl = "https://aniwave.to"
     override var name = "Aniwave/9Anime"
     override val hasMainPage = true
@@ -304,7 +304,7 @@ class NineAnimeProvider : MainAPI() {
     private fun serverName(serverID: String?): String? {
         val sss =
             when (serverID) {
-                "41" -> "vidstream"
+                "41" -> "vidplay"
                 "44" -> "filemoon"
                 "40" -> "streamtape"
                 "35" -> "mp4upload"
@@ -349,7 +349,7 @@ class NineAnimeProvider : MainAPI() {
         }
         aas.apmap { (sName, sId) ->
             val nName = if (sName == null) "mycloud" else sName
-            val vids = nName == "vidstream"
+            val vids = nName == "vidplay"
             val mclo = nName == "mycloud"
             if (vids || mclo) {
                 val sae = consumetVrf(sId)
@@ -376,7 +376,7 @@ class NineAnimeProvider : MainAPI() {
                     val reg2 = Regex("((https|http).*list.*(m3u8|.mp4))")
                     val m3u8 = reg2.find(ssae)?.destructured?.component1() ?: ""
 
-                    val name = if (vids) "Vidstream" else "MyCloud"
+                    val name = if (vids) "vidplay" else "MyCloud"
                     generateM3u8(
                         name,
                         m3u8.replace("#.mp4",""),

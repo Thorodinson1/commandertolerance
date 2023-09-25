@@ -1,5 +1,5 @@
 // use an integer for version numbers
-version = 26
+version = 27
 
 
 cloudstream {
@@ -22,5 +22,5 @@ cloudstream {
         "OVA",
     )
 
-    iconUrl = "https://raw.githubusercontent.com/Stormunblessed/IPTV-CR-NIC/main/logos/Nain.png"
+    iconUrl = "https://www.google.com/s2/favicons?domain=aniwave.to&sz=%size%"
 }
