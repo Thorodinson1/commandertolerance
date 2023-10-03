@@ -1,11 +1,11 @@
 // use an integer for version numbers
-version = 17
+version = 18
 
 
 cloudstream {
     // All of these properties are optional, you can safely remove them
 
-     description = "Also includes Aniwatch"
+     description = "Aniwatch Anime"
     // authors = listOf("Cloudburst")
 
     /**
@@ -18,5 +18,5 @@ cloudstream {
     status = 1 // will be 3 if unspecified
 
     
-    iconUrl = "https://www.google.com/s2/favicons?domain=sflix.to&sz=24"
+    iconUrl = "https://www.google.com/s2/favicons?domain=aniwatch.to&sz=24"
 }
