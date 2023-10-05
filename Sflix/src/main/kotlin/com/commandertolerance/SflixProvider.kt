@@ -342,7 +342,7 @@ open class SflixProvider : MainAPI() {
 
                 // Some smarter ws11 or w10 selection might be required in the future.
                 val extractorData =
-                    "https://ws11.rabbitstream.net/socket.io/?EIO=4&transport=polling"
+                    "https://rabbitstream.net/js/player/prod/e4-player.min.js"
 
                 if (iframeLink.contains("streamlare", ignoreCase = true)) {
                     loadExtractor(iframeLink, null, subtitleCallback, callback)
