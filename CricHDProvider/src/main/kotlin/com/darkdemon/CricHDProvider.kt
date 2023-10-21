@@ -6,7 +6,7 @@ import com.lagradost.cloudstream3.utils.Qualities
 import org.jsoup.nodes.Element
 
 class CricHDProvider : MainAPI() { // all providers must be an instance of MainAPI
-    override var mainUrl = "https://pc9.crichd.com"
+    override var mainUrl = "https://mc6.crichd.com"
     override var name = "CricHD"
     override val hasMainPage = true
     override var lang = "en"
