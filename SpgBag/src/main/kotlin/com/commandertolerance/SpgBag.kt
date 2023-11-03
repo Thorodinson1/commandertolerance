@@ -40,7 +40,7 @@ class SpgBag : MainAPI() {
     }
 
     private fun Element.toSearchResult(): SearchResponse? {
-        val title = this.selectFirst("a")!!.attr("href")?.text() ?: return null
+        val title = this.selectFirst("a")?.text() ?: return null
         val href = fixUrl(this.selectFirst("a")!!.attr("href"))
         val posterUrl = fixUrlNull(this.select("div.picture > img").attr("data-src"))
         return newMovieSearchResponse(title, href, TvType.Movie) {
