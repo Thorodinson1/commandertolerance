@@ -32,12 +32,20 @@ class SpgBag : MainAPI() {
     ): HomePageResponse {
         val document = app.get(request.data + page).document
         val home =
-            document.select("div.videos div.video-list.video-rotate div video-item")
+            document.select("div.video-list.video-rotate div.video-item")
                 .mapNotNull {
                     it.toSearchResult()
                 }
-        return newHomePageResponse(request.name, home)
+        return newHomePageResponse(
+            list = HomePageList(
+            name = request.name,
+            list = home,
+            isHorizontalImages = true
+        ),
+        hasNext = true
+        )
     }
+
 
     private fun Element.toSearchResult(): SearchResponse? {
         val title = this.selectFirst("a")?.text() ?: return null
