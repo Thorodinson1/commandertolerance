@@ -50,12 +50,11 @@ class SpgBag : MainAPI() {
     private fun Element.toSearchResult(): SearchResponse? {
         val title = this.selectFirst("a")?.text() ?: return null
         val href = fixUrl(this.selectFirst("a")!!.attr("href"))
-        val posterUrl = fixUrlNull(this.select("div.picture > img").attr("data-src"))
+        val posterUrl = fixUrlNull(this.select("cover lazyload")?.attr("src"))
         return newMovieSearchResponse(title, href, TvType.Movie) {
             this.posterUrl = posterUrl  
         }
-
-    }   
+    }    
         
     override suspend fun search(query: String): List<SearchResponse> {
             val searchResponse = mutableListOf<SearchResponse>()
