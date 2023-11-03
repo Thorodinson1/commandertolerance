@@ -6,7 +6,7 @@ import com.lagradost.cloudstream3.utils.*
 import org.jsoup.nodes.Element
 import java.util.*
 
-class  SpgBag : MainAPI() { 
+class SpgBag : MainAPI() { 
     override var mainUrl = "https://spankbang.com"
     override var name = "SpgBag"
     override val hasMainPage = true
