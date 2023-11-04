@@ -106,22 +106,22 @@ class Pxxbay : MainAPI() {
                         when {
                             source.startsWith("https://doodstream.com") -> app.get(
                                 source,
-                                referer = "$directUrl/"
+                                referer = "$mainUrl/"
                             ).document.select("ul.list-server-items li")
                                 .apmap {
                                     loadExtractor(
                                         it.attr("data-video").substringBefore("=https://subload"),
-                                        "$directUrl/",
+                                        "$mainUrl/",
                                         subtitleCallback,
                                         callback
                                     )
                                 }
-                            else -> loadExtractor(source, "$directUrl/", subtitleCallback, callback)
+                            else -> loadExtractor(source, "$mainUrl/", subtitleCallback, callback)
                         }
                     }
                 }
         } else {
-            loadExtractor(data, "$directUrl/", subtitleCallback, callback)
+            loadExtractor(data, "$mainUrl/", subtitleCallback, callback)
         }
 
         return true
