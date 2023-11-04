@@ -16,9 +16,9 @@ class Pxxbay : MainAPI() {
 
     override val mainPage = mainPageOf(
         "$mainUrl/category/scenes/sd-scenes=" to "SD scences",
-        "$mainUrl/category/scenes/720p-scenes=" to "72OP Scences"
-        "$mainUrl/category/movies/720p-movies=" to "72OP Movies"
-        "$mainUrl/category/movies/1080p-movies=" to "1080p Movies"
+        "$mainUrl/category/scenes/720p-scenes=" to "72OP Scences",
+        "$mainUrl/category/movies/720p-movies=" to "72OP Movies",
+        "$mainUrl/category/movies/1080p-movies=" to "1080p Movies",
        
     )
 
@@ -55,7 +55,6 @@ class Pxxbay : MainAPI() {
     override suspend fun search(query: String): List<SearchResponse> {
         val searchResponse = mutableListOf<SearchResponse>()
         for (i in 1..15) {
-            val document =
             val document = app.get("$mainUrl/search/1?s=query&page=$i").document
             val results =
                 document.select("div.gridmax-posts gridmax-posts-grid")
