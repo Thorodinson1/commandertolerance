@@ -98,7 +98,7 @@ class Pxxbay : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        if (data.contains("watchomovies")) {
+        if (data.contains("doodstream")) {
             val doc = app.get(data).document
             doc.select("div.video-container iframe").map { fixUrl(it.attr("src")) }
                 .apmap { source ->
