@@ -31,7 +31,7 @@ class Pxxbay : MainAPI() {
     ): HomePageResponse {
         val document = app.get(request.data + page).document
         val home =
-            document.select("div.gridmax-grid-posts div.gridmax-grid-post gridmax-5-col, div.gridmax-posts gridmax-posts-grid div.gridmax-grid-post gridmax-4-col")
+            document.select("div.gridmax-posts gridmax-posts-grid div.gridmax-grid-post gridmax-4-col")
                 .mapNotNull {
                     it.toSearchResult()
                 }
