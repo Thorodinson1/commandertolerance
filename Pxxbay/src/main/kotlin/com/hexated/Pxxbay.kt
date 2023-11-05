@@ -18,10 +18,10 @@ class Pxxbay : MainAPI() {
     override val supportedTypes = setOf(TvType.NSFW)
 
     override val mainPage = mainPageOf(
-        "$mainUrl/category/scenes/sd-scenes=" to "SD scences",
-        "$mainUrl/category/scenes/720p-scenes=" to "72OP Scences",
-        "$mainUrl/category/movies/720p-movies=" to "72OP Movies",
-        "$mainUrl/category/movies/1080p-movies=" to "1080p Movies",
+        "$mainUrl/category/scenes/sd-scenes/page/" to "SD scences",
+        "$mainUrl/category/scenes/720p-scenespage/" to "72OP Scences",
+        "$mainUrl/category/movies/720p-movies/page/" to "72OP Movies",
+        "$mainUrl/category/movies/1080p-movies/page/" to "1080p Movies",
        
     )
 
