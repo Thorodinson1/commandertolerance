@@ -104,8 +104,8 @@ class Fxprnhd : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        val document = app.get(data).document
-        val soup = Jsoup.parse(document)
+        val html = app.get(data).text
+        val soup = Jsoup.parse(html)
         val video = soup.selectFirst("#responsive-player video")
         if (video != null) {
             loadExtractor(video.attr("src"), null, subtitleCallback, callback)
