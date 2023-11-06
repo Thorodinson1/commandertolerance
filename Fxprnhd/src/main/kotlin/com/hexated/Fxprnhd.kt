@@ -21,8 +21,8 @@ class Fxprnhd : MainAPI() {
         "$mainUrl/c/bangbros/page/" to "Bang Bros",
         "$mainUrl/c/brazzers/page/" to "Brazzers",
         "$mainUrl/c/realitykings/page/" to "Reality Kings",
-        "$mainUrl/c/blacked/page/" to "Reality Kings",
-        "$mainUrl/c/pervmom/page/" to "Reality Kings",
+        "$mainUrl/c/blacked/page/" to "Blacked",
+        "$mainUrl/c/pervmom/page/" to "Pervmom",
        
     )
 
