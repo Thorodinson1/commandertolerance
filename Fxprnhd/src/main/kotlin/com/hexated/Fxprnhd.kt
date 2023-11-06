@@ -107,12 +107,11 @@ class Fxprnhd : MainAPI() {
 ): Boolean {
     app.get(data).document.select("div#fluid_video_wrapper_video video#video").attr("src")
 
-   
+    return true
     }
 
-    return true
+    
 }
 
 
   
-}
