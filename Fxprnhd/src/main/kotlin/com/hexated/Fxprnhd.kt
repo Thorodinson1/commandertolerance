@@ -2,6 +2,9 @@ package com.hexated
 
 import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.LoadResponse.Companion.addActors
+import com.lagradost.cloudstream3.mvvm.safeApiCall
+import com.lagradost.cloudstream3.utils.ExtractorLink
+import com.lagradost.cloudstream3.utils.loadExtractor
 import com.lagradost.cloudstream3.utils.*
 import org.jsoup.nodes.Element
 import java.util.*
@@ -101,23 +104,27 @@ class Fxprnhd : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        val document = app.get(data).document
-        document.select("meta[property=og:contentURL]")?.attr("content").map { res ->
-            callback.invoke(
-                   ExtractorLink(
-                        this.name,
-                        this.name,
-                        res.attr("href")
-                            .replace(Regex("\\?download\\S+.mp4&"), "?") + "&rnd=${Date().time}",
-                        referer = data,
-                        quality = Regex("([0-9]+p),").find(res.text())?.groupValues?.get(1)
-                            .let { getQualityFromName(it) },
-                        headers = mapOf("Range" to "bytes=0-"),
-                    )
-                )
+        val source = if(data.contains("video") || data.contains("live-action")) {
+            app.get(data).document.select("div.video-player").mapNotNull {
+                fixUrl(it.select("meta[itemprop=contentURL:content]").attr("content"))
             }
-    
-            return true
+        } else {
+            app.get(data).document.select("div.tracking-btn").mapNotNull {
+                fixUrl(it.select("iframe").attr("data-src"))
+            }
         }
-    
+
+        source.apmap {
+            loadExtractor(it, data, subtitleCallback, callback)
+        }
+
+        return true
     }
+
+    private fun getBaseUrl(url: String): String {
+        return URI(url).let {
+            "${it.scheme}://${it.host}"
+        }
+    }
+
+}
