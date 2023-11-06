@@ -105,16 +105,9 @@ class Fxprnhd : MainAPI() {
     subtitleCallback: (SubtitleFile) -> Unit,
     callback: (ExtractorLink) -> Unit
 ): Boolean {
-    val html = app.get(data).text // Assuming "app.get" retrieves the HTML content
-    val soup = Jsoup.parse(html)
-    val videoElement = soup.selectFirst("div#fluid_video_wrapper_video video#video")
+    app.get(data).document.select("div#fluid_video_wrapper_video video#video").attr("src")
 
-    if (videoElement != null) {
-        val videoUrl = videoElement.attr("src")
-        val extractorLink = ExtractorLink(videoUrl) // Create an ExtractorLink object
-
-        // Callback to handle the video link extraction
-        callback(extractorLink)
+   
     }
 
     return true
