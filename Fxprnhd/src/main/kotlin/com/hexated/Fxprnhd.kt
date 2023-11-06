@@ -104,7 +104,7 @@ class Fxprnhd : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        al document = app.get(data).document
+        val document = app.get(data).document
         
         val video = soup.selectFirst("#responsive-player video")
         if (video != null) {
