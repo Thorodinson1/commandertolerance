@@ -104,22 +104,13 @@ class Fxprnhd : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        val source = if(data.contains("video") || data.contains("live-action")) {
-            app.get(data).document.select("div.video-player").mapNotNull {
-                fixUrl(it.select("meta[itemprop=contentURL:content]").attr("content"))
-            }
-        } else {
-            app.get(data).document.select("div.tracking-btn").mapNotNull {
-                fixUrl(it.select("iframe").attr("data-src"))
-            }
+        al document = app.get(data).document
+        
+        val video = soup.selectFirst("#responsive-player video")
+        if (video != null) {
+            loadExtractor(video.attr("src"), null, subtitleCallback, callback)
         }
-
-        source.apmap {
-            loadExtractor(it, data, subtitleCallback, callback)
-        }
-
         return true
     }
-
-   
+  
 }
