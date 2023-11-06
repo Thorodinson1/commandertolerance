@@ -107,7 +107,7 @@ class Fxprnhd : MainAPI() {
     ): Boolean {
         val html = app.get(data).text
         val soup = Jsoup.parse(html)
-        val iframe = soup.selectFirst("#responsive-player video")
+        val iframe = soup.selectFirst("div.fluid_video_wrapper_video")
         if (iframe != null) {
             loadExtractor(iframe.attr("src"), null, subtitleCallback, callback)
         }
