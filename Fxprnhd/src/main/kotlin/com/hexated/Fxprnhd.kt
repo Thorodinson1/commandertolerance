@@ -121,10 +121,5 @@ class Fxprnhd : MainAPI() {
         return true
     }
 
-    private fun getBaseUrl(url: String): String {
-        return URI(url).let {
-            "${it.scheme}://${it.host}"
-        }
-    }
-
+   
 }
