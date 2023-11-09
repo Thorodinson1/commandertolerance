@@ -440,7 +440,7 @@ open class SflixProvider : MainAPI() {
         }
 
          suspend fun getKey(): String? {
-            return app.get("https://raw.githubusercontent.com/enimax-anime/key/e4/key.txt")
+            return app.get("https://e4.tvembed.cc/e4")
                 .text
         }
          
