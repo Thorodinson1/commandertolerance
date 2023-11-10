@@ -105,7 +105,7 @@ class Fxprnhd : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        val source = app.get(data).document.select("div.responsive-player iframe").attr("src")
+        val source = app.get(data).document.select("div.fluid_video_wrapper video").attr("src")
         val script = app.get(source, referer = "$mainUrl/").document.select("body > script").toString()
             safeApiCall {
                 loadExtractor(
