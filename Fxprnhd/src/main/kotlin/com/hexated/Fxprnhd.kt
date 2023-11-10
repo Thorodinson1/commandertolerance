@@ -107,7 +107,6 @@ class Fxprnhd : MainAPI() {
     ): Boolean {
         val source = app.get(data).document.select("div.responsive-player iframe").attr("src")
         val script = app.get(source, referer = "$mainUrl/").document.select("body > script").toString()
-        val links = linkRegex.find(script)?.groups?.get(1)?.value.toString()
             safeApiCall {
                 loadExtractor(
                     links,
@@ -116,6 +115,7 @@ class Fxprnhd : MainAPI() {
                     callback
                 )
             }
+        
         return true
     }
 
