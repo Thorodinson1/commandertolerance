@@ -105,7 +105,6 @@ class Fxprnhd : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        val linkRegex = Regex("(https?:\/\/(www\.)?[-a-zA-Z0-9@:%.\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%\+.~#?&\/\/=]*mp4))")
         val source = app.get(data).document.select("div.responsive-player iframe").attr("src")
         val script = app.get(source, referer = "$mainUrl/").document.select("body > script").toString()
         val links = linkRegex.find(script)?.groups?.get(1)?.value.toString()
@@ -117,9 +116,6 @@ class Fxprnhd : MainAPI() {
                     callback
                 )
             }
-        Log.d("source", source)
-        Log.d("script", script)
-        Log.d("links", links)
         return true
     }
 
