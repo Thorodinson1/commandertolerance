@@ -109,7 +109,7 @@ class Fxprnhd : MainAPI() {
         val script = app.get(source, referer = "$mainUrl/").document.select("body > script").toString()
             safeApiCall {
                 loadExtractor(
-                    links,
+                    source,
                     "$mainUrl/",
                     subtitleCallback,
                     callback
