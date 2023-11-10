@@ -35,7 +35,7 @@ class MHDTVProvider : MainAPI() { // all providers must be an instance of MainAP
         "$mainUrl/channel/bangla/page/" to "Bangla",
         "$mainUrl/channel/hindi-movies/page/" to "Hindi Movies",
         "$mainUrl/channel/malayalam-movies/page/" to "Malayalam Movies",
-        "$mainUrl/channel/pakistani/page/" to "Pakistani TV",
+        
     )
 
     val interceptor = CloudflareKiller()
