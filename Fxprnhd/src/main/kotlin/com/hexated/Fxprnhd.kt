@@ -105,31 +105,21 @@ class Fxprnhd : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-
-        if (data.startsWith(mainUrl)) {
-            app.get(data).document.select("div.responsive-player iframe").map { fixUrl(it.attr("src")) }
-                .apmap { source ->
-                    safeApiCall {
-                        when {
-                            source.startsWith("https://video-cdn") -> app.get(
-                                source,
-                                referer = "$mainUrl/"
-                            ).document.select("div.fluid_video_wrapper video")
-                                .apmap {
-                                    loadExtractor(
-                                        it.attr("src")
-                                        subtitleCallback,
-                                        callback
-                                    )
-                                }
-                            else -> loadExtractor(source, "$mainUrl/", subtitleCallback, callback)
-                        }
-                    }
-                }
-        } else {
-            loadExtractor(data, "$mainUrl/", subtitleCallback, callback)
+        val document = app.get(data).document
+        document.select("div.video-infos div:last-child a").map { res ->
+            callback.invoke(
+                ExtractorLink(
+                    this.name,
+                    this.name,
+                    res.attr("href")
+                        
+                    referer = data,
+                    
+                )
+            )
         }
 
         return true
     }
-  
+
+}
