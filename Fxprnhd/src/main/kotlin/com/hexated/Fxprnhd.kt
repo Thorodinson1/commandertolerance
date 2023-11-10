@@ -105,19 +105,31 @@ class Fxprnhd : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        val source = app.get(data).document.select("div.fluid_video_wrapper video").attr("src")
-        val script = app.get(source, referer = "$mainUrl/").document.select("body > script").toString()
-            safeApiCall {
-                loadExtractor(
-                    source,
-                    "$mainUrl/",
-                    subtitleCallback,
-                    callback
-                )
-            }
-        
+
+        if (data.startsWith(mainUrl)) {
+            app.get(data).document.select("div.responsive-player iframe").map { fixUrl(it.attr("src")) }
+                .apmap { source ->
+                    safeApiCall {
+                        when {
+                            source.startsWith("https://video-cdn") -> app.get(
+                                source,
+                                referer = "$mainUrl/"
+                            ).document.select("div.fluid_video_wrapper video")
+                                .apmap {
+                                    loadExtractor(
+                                        it.attr("src")
+                                        subtitleCallback,
+                                        callback
+                                    )
+                                }
+                            else -> loadExtractor(source, "$mainUrl/", subtitleCallback, callback)
+                        }
+                    }
+                }
+        } else {
+            loadExtractor(data, "$mainUrl/", subtitleCallback, callback)
+        }
+
         return true
     }
-
-}
   
