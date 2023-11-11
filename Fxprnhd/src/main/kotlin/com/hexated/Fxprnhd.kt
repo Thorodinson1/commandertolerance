@@ -91,22 +91,22 @@ class Fxprnhd : MainAPI() {
                         when {
                             source.startsWith("hhttps://streamtape.com") -> app.get(
                                 source,
-                                referer = "$directUrl/"
+                                referer = "$mainUrl/"
                             ).document.select("div.video-infos div:last-child a")
                                 .apmap {
                                     loadExtractor(
                                         it.attr("src").substringBefore("=https://streamtape.com"),
-                                        "$directUrl/",
+                                        "$mainUrl/",
                                         subtitleCallback,
                                         callback
                                     )
                                 }
-                            else -> loadExtractor(source, "$directUrl/", subtitleCallback, callback)
+                            else -> loadExtractor(source, "$mainUrl/", subtitleCallback, callback)
                         }
                     }
                 }
         } else {
-            loadExtractor(data, "$directUrl/", subtitleCallback, callback)
+            loadExtractor(data, "$mainUrl/", subtitleCallback, callback)
         }
 
         return true
