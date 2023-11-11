@@ -76,50 +76,39 @@ class Fxprnhd : MainAPI() {
         return searchResponse
     }
 
-    override suspend fun load(url: String): LoadResponse {
-        val document = app.get(url).document
-
-        val title = document.selectFirst("div.title-views > h1")?.text()?.trim().toString()
-        val poster =
-            fixUrlNull(document.selectFirst("meta[property=og:image]")?.attr("content").toString())
-        val tags = document.select("div.tags-list.a > a").map { it.text() }
-        val description = document.select("div.video-description.div > p").text().trim()
-        val actors = document.select("div.info div:nth-child(6) > a").map { it.text() }
-        val recommendations =
-            document.select("div.videos-list > article").mapNotNull {
-                it.toSearchResult()
-            }
-
-        return newMovieLoadResponse(title, url, TvType.NSFW, url) {
-            this.posterUrl = poster
-            this.plot = description
-            this.tags = tags
-            addActors(actors)
-            this.recommendations = recommendations
-        }
-    }
-
     override suspend fun loadLinks(
         data: String,
         isCasting: Boolean,
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        val document = app.get(data).document
-        document.select("div.video-infos div:last-child a").map { res ->
-            callback.invoke(
-                ExtractorLink(
-                    this.name,
-                    this.name,
-                    res.attr("href")
-                        
-                    referer = data,
-                    
-                )
-            )
+
+        if (data.contains("streamtape")) {
+            val doc = app.get(data).document
+            doc.select("div.video-infos div:last-child a").map { fixUrl(it.attr("src")) }
+                .apmap { source ->
+                    safeApiCall {
+                        when {
+                            source.startsWith("hhttps://streamtape.com") -> app.get(
+                                source,
+                                referer = "$directUrl/"
+                            ).document.select("div.video-infos div:last-child a")
+                                .apmap {
+                                    loadExtractor(
+                                        it.attr("src").substringBefore("=https://streamtape.com"),
+                                        "$directUrl/",
+                                        subtitleCallback,
+                                        callback
+                                    )
+                                }
+                            else -> loadExtractor(source, "$directUrl/", subtitleCallback, callback)
+                        }
+                    }
+                }
+        } else {
+            loadExtractor(data, "$directUrl/", subtitleCallback, callback)
         }
 
         return true
-    }
-
+    } 
 }
