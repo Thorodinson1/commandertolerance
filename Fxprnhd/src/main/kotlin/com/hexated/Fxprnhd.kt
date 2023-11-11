@@ -111,7 +111,7 @@ class Fxprnhd : MainAPI() {
                 val status = element.attr("src") ?: return@forEach
                 if (status != "1") return@forEach
                 val videoUrl = element.attr("src")
-                loadExtractor(videoUrl, streamingResponse.url, callback)
+                loadExtractor(videoUrl, streamingResponse.url, subtitleCallback, callback)
             }
     
         // Add your logic here to handle subtitleCallback if needed
