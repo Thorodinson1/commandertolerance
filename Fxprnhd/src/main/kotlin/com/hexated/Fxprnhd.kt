@@ -105,33 +105,15 @@ class Fxprnhd : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-
-        if (data.contains("streamtape")) {
-            val doc = app.get(data).document
-            doc.select("div.video-infos div:last-child a").map { fixUrl(it.attr("src")) }
-                .apmap { source ->
-                    safeApiCall {
-                        when {
-                            source.startsWith("https://streamtape.com") -> app.get(
-                                source,
-                                referer = "$mainUrl/"
-                            ).document.select("div.video-infos div:last-child a")
-                                .apmap {
-                                    loadExtractor(
-                                        it.attr("src").substringBefore("=https://streamtape.com"),
-                                        "$mainUrl/",
-                                        subtitleCallback,
-                                        callback
-                                    )
-                                }
-                            else -> loadExtractor(source, "$mainUrl/", subtitleCallback, callback)
-                        }
-                    }
-                }
-        } else {
-            loadExtractor(data, "$mainUrl/", subtitleCallback, callback)
+        val streamingResponse = app.get(iframe, headers = mapOf("Referer" to iframe))
+        streamingResponse.document.select("div.fluid_video_wrapper_video > video")
+            ?.forEach { element ->
+                val status = element.attr("src") ?: return@forEach
+                if (status != "1") return@forEach
+                val data = element.attr("src")
+                loadExtractor(data, streamingResponse.url, callback)
+            }
         }
 
         return true
-    } 
-}
+} 
