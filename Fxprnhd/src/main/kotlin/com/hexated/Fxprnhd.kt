@@ -76,6 +76,29 @@ class Fxprnhd : MainAPI() {
         return searchResponse
     }
 
+    override suspend fun load(url: String): LoadResponse {
+        val document = app.get(url).document
+
+        val title = document.selectFirst("div.title-views > h1")?.text()?.trim().toString()
+        val poster =
+            fixUrlNull(document.selectFirst("meta[property=og:image]")?.attr("content").toString())
+        val tags = document.select("div.tags-list.a > a").map { it.text() }
+        val description = document.select("div.video-description.div > p").text().trim()
+        val actors = document.select("div.info div:nth-child(6) > a").map { it.text() }
+        val recommendations =
+            document.select("div.videos-list > article").mapNotNull {
+                it.toSearchResult()
+            }
+
+        return newMovieLoadResponse(title, url, TvType.NSFW, url) {
+            this.posterUrl = poster
+            this.plot = description
+            this.tags = tags
+            addActors(actors)
+            this.recommendations = recommendations
+        }
+    }
+
     override suspend fun loadLinks(
         data: String,
         isCasting: Boolean,
