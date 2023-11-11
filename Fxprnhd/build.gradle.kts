@@ -1,12 +1,12 @@
 // use an integer for version numbers
-version = 21
+version = 22
 
 
 cloudstream {
     language = "en"
     // All of these properties are optional, you can safely remove them
 
-     description = "Premium porn with 4K support (use VPN if links not working)"
+     description = " Use VPN if links not working"
      authors = listOf("Sora")
 
     /**
