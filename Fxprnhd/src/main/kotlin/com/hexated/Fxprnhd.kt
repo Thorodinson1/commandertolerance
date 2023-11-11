@@ -89,7 +89,7 @@ class Fxprnhd : MainAPI() {
                 .apmap { source ->
                     safeApiCall {
                         when {
-                            source.startsWith("hhttps://streamtape.com") -> app.get(
+                            source.startsWith("https://streamtape.com") -> app.get(
                                 source,
                                 referer = "$mainUrl/"
                             ).document.select("div.video-infos div:last-child a")
