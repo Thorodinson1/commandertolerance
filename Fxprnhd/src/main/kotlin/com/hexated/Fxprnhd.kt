@@ -105,15 +105,17 @@ class Fxprnhd : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        val streamingResponse = app.get(iframe, headers = mapOf("Referer" to iframe))
+        val streamingResponse = app.get(data, headers = mapOf("Referer" to data))
         streamingResponse.document.select("div.fluid_video_wrapper_video > video")
             ?.forEach { element ->
                 val status = element.attr("src") ?: return@forEach
                 if (status != "1") return@forEach
-                val data = element.attr("src")
-                loadExtractor(data, streamingResponse.url, callback)
+                val videoUrl = element.attr("src")
+                loadExtractor(videoUrl, streamingResponse.url, callback)
             }
-        }
-
+    
+        // Add your logic here to handle subtitleCallback if needed
+    
         return true
-} 
+    }
+}    
