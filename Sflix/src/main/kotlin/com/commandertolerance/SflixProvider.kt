@@ -23,7 +23,12 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import java.net.URI
+import java.nio.charset.StandardCharsets
+import java.security.MessageDigest
 import java.util.*
+import javax.crypto.Cipher
+import javax.crypto.spec.IvParameterSpec
+import javax.crypto.spec.SecretKeySpec
 import kotlin.system.measureTimeMillis
 
 open class SflixProvider : MainAPI() {
@@ -41,7 +46,7 @@ open class SflixProvider : MainAPI() {
     )
     override val vpnStatus = VPNStatus.None
 
-    override suspend fun getMainPage(page: Int, request : MainPageRequest): HomePageResponse {
+    override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse {
         val html = app.get("$mainUrl/home").text
         val document = Jsoup.parse(html)
 
@@ -88,26 +93,28 @@ open class SflixProvider : MainAPI() {
             val quality = getQualityFromString(metaInfo.getOrNull(1)?.text())
 
             if (isMovie) {
-                MovieSearchResponse(
-                    title,
-                    href,
-                    this.name,
-                    TvType.Movie,
-                    image,
-                    year,
-                    quality = quality
-                )
+                newMovieSearchResponse(
+                    name = title,
+                    url = href,
+                    type = TvType.Movie,
+                    fix = true
+                ) {
+                    posterUrl = image
+                    this.year = year
+                    this.quality = quality
+                }
             } else {
-                TvSeriesSearchResponse(
-                    title,
-                    href,
-                    this.name,
-                    TvType.TvSeries,
-                    image,
-                    year,
-                    null,
-                    quality = quality
-                )
+                newTvSeriesSearchResponse(
+                    name = title,
+                    url = href,
+                    type = TvType.TvSeries,
+                    fix = true
+                ) {
+                    posterUrl = image
+                    year
+                    episodes
+                    this.quality = quality
+                }
             }
         }
     }
@@ -173,14 +180,15 @@ open class SflixProvider : MainAPI() {
                 val recUrl = fixUrlNull(titleHeader.attr("href")) ?: return@mapNotNull null
                 val recTitle = titleHeader.text() ?: return@mapNotNull null
                 val poster = element.select("div.film-poster > img").attr("data-src")
-                MovieSearchResponse(
-                    recTitle,
+                newMovieSearchResponse(
+                    name = recTitle,
                     recUrl,
-                    this.name,
-                    if (recUrl.contains("/movie/")) TvType.Movie else TvType.TvSeries,
-                    poster,
+                    type = if (recUrl.contains("/movie/")) TvType.Movie else TvType.TvSeries,
+                    ) {
+                    recTitle
+                    this.posterUrl = poster
                     year = null
-                )
+                }
             }
 
         if (isMovie) {
@@ -290,10 +298,19 @@ open class SflixProvider : MainAPI() {
     )
 
     data class SourceObject(
-        @JsonProperty("sources") val sources: List<Sources?>?,
-        @JsonProperty("sources_1") val sources1: List<Sources?>?,
-        @JsonProperty("sources_2") val sources2: List<Sources?>?,
-        @JsonProperty("sourcesBackup") val sourcesBackup: List<Sources?>?,
+        @JsonProperty("sources") val sources: List<Sources?>? = null,
+        @JsonProperty("sources_1") val sources1: List<Sources?>? = null,
+        @JsonProperty("sources_2") val sources2: List<Sources?>? = null,
+        @JsonProperty("sourcesBackup") val sourcesBackup: List<Sources?>? = null,
+        @JsonProperty("tracks") val tracks: List<Tracks?>? = null
+    )
+
+    data class SourceObjectEncrypted(
+        @JsonProperty("sources") val sources: String?,
+        @JsonProperty("encrypted") val encrypted: Boolean?,
+        @JsonProperty("sources_1") val sources1: String?,
+        @JsonProperty("sources_2") val sources2: String?,
+        @JsonProperty("sourcesBackup") val sourcesBackup: String?,
         @JsonProperty("tracks") val tracks: List<Tracks?>?
     )
 
@@ -341,13 +358,17 @@ open class SflixProvider : MainAPI() {
                         ?: return@suspendSafeApiCall
 
                 // Some smarter ws11 or w10 selection might be required in the future.
-                val extractorData =
-                    "https://rabbitstream.net/js/player/prod/e4-player.min.js"
+//                val extractorData =
+//                    "https://ws11.rabbitstream.net/socket.io/?EIO=4&transport=polling"
 
-                if (iframeLink.contains("streamlare", ignoreCase = true)) {
-                    loadExtractor(iframeLink, null, subtitleCallback, callback)
-                } else {
-                    extractRabbitStream(iframeLink, subtitleCallback, callback, false) { it }
+                if (!loadExtractor(iframeLink, null, subtitleCallback, callback)) {
+                    extractRabbitStream(
+                        iframeLink,
+                        subtitleCallback,
+                        callback,
+                        false,
+                        decryptKey = getKey()
+                    ) { it }
                 }
             }
         }
@@ -355,9 +376,9 @@ open class SflixProvider : MainAPI() {
         return !urls.isNullOrEmpty()
     }
 
-    override suspend fun extractorVerifierJob(extractorData: String?) {
-        runSflixExtractorVerifierJob(this, extractorData, "https://rabbitstream.net/")
-    }
+//    override suspend fun extractorVerifierJob(extractorData: String?) {
+//        runSflixExtractorVerifierJob(this, extractorData, "https://rabbitstream.net/")
+//    }
 
     private fun Element.toSearchResult(): SearchResponse {
         val inner = this.selectFirst("div.film-poster")
@@ -386,26 +407,29 @@ open class SflixProvider : MainAPI() {
         }
 
         return if (isMovie) {
-            MovieSearchResponse(
-                title,
-                href,
-                this@SflixProvider.name,
-                TvType.Movie,
-                posterUrl = posterUrl,
-                year = year,
-                quality = quality,
-            )
+            newMovieSearchResponse(
+                name = title,
+                url = href,
+                type = TvType.Movie,
+                fix = true
+            ) {
+                this@SflixProvider.name
+                this.posterUrl = posterUrl
+                year = year
+                quality = quality
+            }
         } else {
-            TvSeriesSearchResponse(
-                title,
-                href,
-                this@SflixProvider.name,
-                TvType.Movie,
-                posterUrl,
-                year = year,
-                episodes = null,
-                quality = quality,
-            )
+            newTvSeriesSearchResponse(
+                name = title,
+                url = href,
+                type = TvType.TvSeries,
+                fix = true
+            ) {
+                this.posterUrl = posterUrl
+                year = year
+                episodes
+                quality = quality
+            }
         }
     }
 
@@ -439,11 +463,11 @@ open class SflixProvider : MainAPI() {
             return code.reversed()
         }
 
-         suspend fun getKey(): String? {
+        suspend fun getKey(): String? {
             return app.get("https://e4.tvembed.cc/e4")
                 .text
         }
-         
+
         /**
          * Generates a session
          * 1 Get request.
@@ -472,7 +496,7 @@ open class SflixProvider : MainAPI() {
             if (!response.okhttpResponse.isSuccessful) {
                 return negotiateNewSid(baseUrl)?.let {
                     it to true
-                } ?: data to false
+                } ?: (data to false)
             }
             return data to false
         }
@@ -619,7 +643,7 @@ open class SflixProvider : MainAPI() {
                                     extractorData = extractorData
                                 )
                             }
-                    } ?: listOf(
+                    }.takeIf { !it.isNullOrEmpty() } ?: listOf(
                         // Fallback if m3u8 extractor fails
                         ExtractorLink(
                             caller.name,
@@ -656,6 +680,49 @@ open class SflixProvider : MainAPI() {
             }
         }
 
+        private fun md5(input: ByteArray): ByteArray {
+            return MessageDigest.getInstance("MD5").digest(input)
+        }
+
+        private fun generateKey(salt: ByteArray, secret: ByteArray): ByteArray {
+            var key = md5(secret + salt)
+            var currentKey = key
+            while (currentKey.size < 48) {
+                key = md5(key + secret + salt)
+                currentKey += key
+            }
+            return currentKey
+        }
+
+        private fun decryptSourceUrl(decryptionKey: ByteArray, sourceUrl: String): String {
+            val cipherData = base64DecodeArray(sourceUrl)
+            val encrypted = cipherData.copyOfRange(16, cipherData.size)
+            val aesCBC = Cipher.getInstance("AES/CBC/PKCS5Padding")
+
+            Objects.requireNonNull(aesCBC).init(
+                Cipher.DECRYPT_MODE, SecretKeySpec(
+                    decryptionKey.copyOfRange(0, 32),
+                    "AES"
+                ),
+                IvParameterSpec(decryptionKey.copyOfRange(32, decryptionKey.size))
+            )
+            val decryptedData = aesCBC!!.doFinal(encrypted)
+            return String(decryptedData, StandardCharsets.UTF_8)
+        }
+
+        private inline fun <reified T> decryptMapped(input: String, key: String): T? {
+            return tryParseJson(decrypt(input, key))
+        }
+
+        private fun decrypt(input: String, key: String): String {
+            return decryptSourceUrl(
+                generateKey(
+                    base64DecodeArray(input).copyOfRange(8, 16),
+                    key.toByteArray()
+                ), input
+            )
+        }
+
         suspend fun MainAPI.extractRabbitStream(
             url: String,
             subtitleCallback: (SubtitleFile) -> Unit,
@@ -663,6 +730,7 @@ open class SflixProvider : MainAPI() {
             useSidAuthentication: Boolean,
             /** Used for extractorLink name, input: Source name */
             extractorData: String? = null,
+            decryptKey: String? = null,
             nameTransformer: (String) -> String,
         ) = suspendSafeApiCall {
             // https://rapid-cloud.ru/embed-6/dcPOVRE57YOT?z= -> https://rapid-cloud.ru/embed-6
@@ -670,13 +738,13 @@ open class SflixProvider : MainAPI() {
                 url.substringBeforeLast("/")
             val mainIframeId = url.substringAfterLast("/")
                 .substringBefore("?") // https://rapid-cloud.ru/embed-6/dcPOVRE57YOT?z= -> dcPOVRE57YOT
-            val iframe = app.get(url, referer = mainUrl)
-            val iframeKey =
-                iframe.document.select("script[src*=https://www.google.com/recaptcha/api.js?render=]")
-                    .attr("src").substringAfter("render=")
-            val iframeToken = getCaptchaToken(url, iframeKey)
-            val number =
-                Regex("""recaptchaNumber = '(.*?)'""").find(iframe.text)?.groupValues?.get(1)
+//            val iframe = app.get(url, referer = mainUrl)
+//            val iframeKey =
+//                iframe.document.select("script[src*=https://www.google.com/recaptcha/api.js?render=]")
+//                    .attr("src").substringAfter("render=")
+//            val iframeToken = getCaptchaToken(url, iframeKey)
+//            val number =
+//                Regex("""recaptchaNumber = '(.*?)'""").find(iframe.text)?.groupValues?.get(1)
 
             var sid: String? = null
             if (useSidAuthentication && extractorData != null) {
@@ -695,42 +763,53 @@ open class SflixProvider : MainAPI() {
                     ioSafe { app.get("$extractorData&t=${generateTimeStamp()}&sid=${pollingData.sid}") }
                 }
             }
-
-            val mapped = app.get(
-                "${
-                    mainIframeUrl.replace(
-                        "/embed",
-                        "/ajax/embed"
-                    )
-                }/getSources?id=$mainIframeId&_token=$iframeToken&_number=$number${sid?.let { "$&sId=$it" } ?: ""}",
+            val getSourcesUrl = "${
+                mainIframeUrl.replace(
+                    "/embed",
+                    "/ajax/embed"
+                )
+            }/getSources?id=$mainIframeId${sid?.let { "$&sId=$it" } ?: ""}"
+            val response = app.get(
+                getSourcesUrl,
                 referer = mainUrl,
                 headers = mapOf(
                     "X-Requested-With" to "XMLHttpRequest",
                     "Accept" to "*/*",
                     "Accept-Language" to "en-US,en;q=0.5",
-//                        "Cache-Control" to "no-cache",
                     "Connection" to "keep-alive",
-//                        "Sec-Fetch-Dest" to "empty",
-//                        "Sec-Fetch-Mode" to "no-cors",
-//                        "Sec-Fetch-Site" to "cross-site",
-//                        "Pragma" to "no-cache",
-//                        "Cache-Control" to "no-cache",
                     "TE" to "trailers"
                 )
-            ).parsed<SourceObject>()
+            )
 
-            mapped.tracks?.forEach { track ->
+            val sourceObject = if (decryptKey != null) {
+                val encryptedMap = response.parsedSafe<SourceObjectEncrypted>()
+                val sources = encryptedMap?.sources
+                if (sources == null || encryptedMap.encrypted == false) {
+                    response.parsedSafe()
+                } else {
+                    val decrypted = decryptMapped<List<Sources>>(sources, decryptKey)
+                    SourceObject(
+                        sources = decrypted,
+                        tracks = encryptedMap.tracks
+                    )
+                }
+            } else {
+                response.parsedSafe()
+            } ?: return@suspendSafeApiCall
+
+            sourceObject.tracks?.forEach { track ->
                 track?.toSubtitleFile()?.let { subtitleFile ->
                     subtitleCallback.invoke(subtitleFile)
                 }
             }
 
             val list = listOf(
-                mapped.sources to "source 1",
-                mapped.sources1 to "source 2",
-                mapped.sources2 to "source 3",
-                mapped.sourcesBackup to "source backup"
+                sourceObject.sources to "source 1",
+                sourceObject.sources1 to "source 2",
+                sourceObject.sources2 to "source 3",
+                sourceObject.sourcesBackup to "source backup"
             )
+
             list.forEach { subList ->
                 subList.first?.forEach { source ->
                     source?.toExtractorLink(
@@ -748,4 +827,3 @@ open class SflixProvider : MainAPI() {
         }
     }
 }
-
