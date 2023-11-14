@@ -106,7 +106,7 @@ class Fxprnhd : MainAPI() {
         callback: (ExtractorLink) -> Unit
     ): Boolean {
         val streamingResponse = app.get(data, headers = mapOf("Referer" to data))
-        streamingResponse.document.select("div.wps-player div.wps-player-block div.fluid_video_wrapper fluid_player_layout_default > video")
+        streamingResponse.document.select("#video > source:nth-child(1)")
             ?.forEach { element ->
                 val status = element.attr("src") ?: return@forEach
                 if (status != "1") return@forEach
