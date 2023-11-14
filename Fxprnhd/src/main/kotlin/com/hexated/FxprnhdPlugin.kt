@@ -8,6 +8,7 @@ import android.content.Context
 class FxprnhdPlugin: Plugin() {
     override fun load(context: Context) {
         // All providers should be added in this manner. Please don't edit the providers list directly.
+        registerExtractorAPI(StreamTapeTo())
         registerMainAPI(Fxprnhd())
     }
 }
