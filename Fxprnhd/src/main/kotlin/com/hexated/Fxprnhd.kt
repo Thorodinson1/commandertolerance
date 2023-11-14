@@ -105,17 +105,23 @@ class Fxprnhd : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        val streamingResponse = app.get(data, headers = mapOf("Referer" to data))
-        streamingResponse.document.select("#video > source:nth-child(1)")
-            ?.forEach { element ->
-                val status = element.attr("src") ?: return@forEach
-                if (status != "1") return@forEach
-                val videoUrl = element.attr("src")
-                loadExtractor(videoUrl, streamingResponse.url, subtitleCallback, callback)
-            }
-    
-        // Add your logic here to handle subtitleCallback if needed
-    
+        val document = app.get(data).document
+        document.select("#video > source:nth-child(1)").map { res ->
+            callback.invoke(
+                ExtractorLink(
+                    this.name,
+                    this.name,
+                    res.attr("src")
+                        .replace(Regex("\\?download\\S+.mp4&"), "?") + "&rnd=${Date().time}",
+                    referer = data,
+                    quality = Regex("([0-9]+p),").find(res.text())?.groupValues?.get(1)
+                        .let { getQualityFromName(it) },
+                    headers = mapOf("Range" to "bytes=0-"),
+                )
+            )
+        }
+
         return true
     }
-}    
+
+}
