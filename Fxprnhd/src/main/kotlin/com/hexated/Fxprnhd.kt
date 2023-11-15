@@ -120,9 +120,10 @@ class Fxprnhd : MainAPI() {
                     this.name,
                     this.name,
                     videoUrl,
-                    refer
-    
-        return links.isNotEmpty()
-    }
+                    
+                ))
+                    return true
+
    }
+}
 }
