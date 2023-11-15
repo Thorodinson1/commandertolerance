@@ -118,11 +118,7 @@ class Fxprnhd : MainAPI() {
 
     if (videoUrl != null) {
         callback.invoke(
-            ExtractorLink(
-                this.name,
-                this.name,
-                videoUrl,
-            )
+            
         )
         return true
     } else {
