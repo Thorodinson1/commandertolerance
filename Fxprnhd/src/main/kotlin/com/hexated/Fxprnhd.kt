@@ -87,10 +87,7 @@ class Fxprnhd : MainAPI() {
         val tags = document.select("div.tags-list.a > a").map { it.text() }
         val description = document.select("div.video-description.div > p").text().trim()
         val actors = document.select("div.info div:nth-child(6) > a").map { it.text() }
-        val links = document.select("div.tracking-btn a.button").mapNotNull {
-            it.attr("href") ?: it.attr("data-player-url")
-        }
-       
+        
         val recommendations =
             document.select("div.videos-list > article").mapNotNull {
                 it.toSearchResult()
@@ -111,11 +108,21 @@ class Fxprnhd : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        val links = parseJson<List<String>>(data)
-        links.apmap {
-            val link = fixUrlNull(it) ?: return@apmap null
-            loadExtractor(link, "$mainUrl/", subtitleCallback, callback)
-        }
+        val document = app.get(data).document
+    
+        // Replace the existing CSS selector with the new one
+        document.select("video#video").map { source ->
+            val videoUrl = source.attr("src")
+                .replace(Regex("\\?download\\S+.mp4&"), "?") + "&rnd=${Date().time}"
+    
+            callback.invoke(
+                ExtractorLink(
+                    this.name,
+                    this.name,
+                    videoUrl,
+                    refer
+    
         return links.isNotEmpty()
     }
+   }
 }
