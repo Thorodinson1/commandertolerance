@@ -113,19 +113,19 @@ class Fxprnhd : MainAPI() {
             val videoUrl = source.attr("src")
                 .replace(Regex("\\?download\\S+.mp4&"), "?") + "&rnd=${Date().time}"
         }
-            callback.invoke(
-                ExtractorLink(
+                  callback.invoke(
+          ExtractorLink(
                     this.name,
                     this.name,
                     videoUrl,
                     
-                    )
+                )
             )
-                    return true
-                 }
+            return true
+      }
             
             
             
             
             
-            }        
+}        
