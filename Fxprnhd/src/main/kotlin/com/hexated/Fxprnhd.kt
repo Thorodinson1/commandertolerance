@@ -103,25 +103,28 @@ class Fxprnhd : MainAPI() {
     }
 
     override suspend fun loadLinks(
-    data: String,
-    isCasting: Boolean,
-    subtitleCallback: (SubtitleFile) -> Unit,
-    callback: (ExtractorLink) -> Unit
-): Boolean {
-    val document = app.get(data).document
-    document.select("video#video").map { source ->
-        callback.invoke(
-            ExtractorLink(
-                this.name,
-                this.name,
-                source.attr("src")
-                   .replace(Regex("\\?download\\S+.mp4&"), "?") + "&rnd=${Date().time}"
-                   referer = data,
-                   )
-                   )
-               }
+        data: String,
+        isCasting: Boolean,
+        subtitleCallback: (SubtitleFile) -> Unit,
+        callback: (ExtractorLink) -> Unit
+    ): Boolean {
+       val document = app.get(data).document
+        document.select("video#video").map { source ->
+            callback.invoke(
+               ExtractorLink(
+                    this.name,
+                    this.name,
+                    source.attr("src")
+                       .replace(Regex("\\?download\\S+.mp4&"), "?") + "&rnd=${Date().time}"
+                    referer = data,
+                    quality = Regex("").find(res.text())?.groupValues?.get(1)
+                        .let { getQualityFromName(it) },
+                    headers = mapOf("Range" to "bytes=0-"),
+                )
+            )
+        }
        
-               return true
-           }
+        return true
+    }
        
 }
