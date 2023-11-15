@@ -109,12 +109,12 @@ class Fxprnhd : MainAPI() {
         callback: (ExtractorLink) -> Unit
     ): Boolean {
        val document = app.get(data).document
-        document.select("video#video").map { source ->
+        document.select("video#video").map { res ->
             callback.invoke(
                ExtractorLink(
                     this.name,
                     this.name,
-                    source.attr("src")
+                    res.attr("src")
                        .replace(Regex("\\?download\\S+.mp4&"), "?") + "&rnd=${Date().time}"
                     referer = data,
                     quality = Regex("").find(res.text())?.groupValues?.get(1)
