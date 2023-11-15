@@ -109,21 +109,23 @@ class Fxprnhd : MainAPI() {
         callback: (ExtractorLink) -> Unit
     ): Boolean {
         val document = app.get(data).document
-    
-        // Replace the existing CSS selector with the new one
         document.select("video#video").map { source ->
             val videoUrl = source.attr("src")
                 .replace(Regex("\\?download\\S+.mp4&"), "?") + "&rnd=${Date().time}"
-    
+        }
             callback.invoke(
                 ExtractorLink(
                     this.name,
                     this.name,
                     videoUrl,
                     
-                ))
+                    )
+            )
                     return true
-
-   }
-}
-}
+                 }
+            
+            
+            
+            
+            
+            }        
