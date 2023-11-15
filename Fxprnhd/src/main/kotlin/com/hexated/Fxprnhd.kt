@@ -103,29 +103,34 @@ class Fxprnhd : MainAPI() {
     }
 
     override suspend fun loadLinks(
-        data: String,
-        isCasting: Boolean,
-        subtitleCallback: (SubtitleFile) -> Unit,
-        callback: (ExtractorLink) -> Unit
-    ): Boolean {
-        val document = app.get(data).document
-        document.select("video#video").map { source ->
-            val videoUrl = source.attr("src")
-                .replace(Regex("\\?download\\S+.mp4&"), "?") + "&rnd=${Date().time}"
-        }
-                  callback.invoke(
-          ExtractorLink(
-                    this.name,
-                    this.name,
-                    videoUrl,
-                    
-                )
+    data: String,
+    isCasting: Boolean,
+    subtitleCallback: (SubtitleFile) -> Unit,
+    callback: (ExtractorLink) -> Unit
+): Boolean {
+    val document = app.get(data).document
+    var videoUrl: String? = null // Declare videoUrl outside of the lambda
+
+    document.select("video#video").map { source ->
+        videoUrl = source.attr("src")
+            .replace(Regex("\\?download\\S+.mp4&"), "?") + "&rnd=${Date().time}"
+    }
+
+    if (videoUrl != null) {
+        callback.invoke(
+            ExtractorLink(
+                this.name,
+                this.name,
+                videoUrl,
             )
-            return true
-      }
-            
-            
-            
+        )
+        return true
+    } else {
+        // Handle the case when videoUrl is null
+        return false
+    }
+}
+
             
             
 }        
