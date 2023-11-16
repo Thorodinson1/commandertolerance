@@ -108,23 +108,23 @@ class Fxprnhd : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-       val document = app.get(data).document
-        document.select("video#video").map { res ->
+        val document = app.get(data).document
+        document.select("video #video").map { res ->
             callback.invoke(
-               ExtractorLink(
+                ExtractorLink(
                     this.name,
                     this.name,
-                    res.attr("src")
-                       .replace(Regex("\\?download\\S+.mp4&"), "?") + "&rnd=${Date().time}"
+                    res.attr("href")
+                        .replace(Regex("\\?download\\S+.mp4&"), "?") + "&rnd=${Date().time}",
                     referer = data,
-                    quality = Regex("").find(res.text())?.groupValues?.get(1)
+                    quality = Regex("([0-9]+p),").find(res.text())?.groupValues?.get(1)
                         .let { getQualityFromName(it) },
                     headers = mapOf("Range" to "bytes=0-"),
                 )
             )
         }
-       
+
         return true
     }
-       
+
 }
