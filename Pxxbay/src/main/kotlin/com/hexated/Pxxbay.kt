@@ -31,7 +31,7 @@ class Pxxbay : MainAPI() {
     ): HomePageResponse {
         val document = app.get(request.data + page).document
         val home =
-            document.select("div.gridmax-posts gridmax-posts-grid div.gridmax-grid-post gridmax-4-col")
+            document.select("div.gridmax-posts div.gridmax-grid-post-thumbnail gridmax-grid-post-block")
                 .mapNotNull {
                     it.toSearchResult()
                 }
@@ -75,11 +75,11 @@ class Pxxbay : MainAPI() {
 
         val title = document.selectFirst("h1.post-title entry-title")?.text()?.trim().toString()
         val poster = fixUrlNull(document.selectFirst("a")?.attr("src"))
-        val tags = document.select("div.info div:nth-child(5) > a").map { it.text() }
-        val description = document.select("div.info div:nth-child(2)").text().trim()
-        val actors = document.select("div.info div:nth-child(6) > a").map { it.text() }
+        val tags = document.select("d.entry-content > h4:nth-child(4) > strong:nth-child(1)").map { it.text() }
+        val description = document.select("d.entry-content > h4:nth-child(4) > strong:nth-child(1)").text().trim()
+        val actors = document.select("dd.entry-content > h4:nth-child(4) > strong:nth-child(1)").map { it.text() }
         val recommendations =
-            document.select("div.gridmax-related-posts-list div.gridmax-related-post-item gridmax-4-col-item").mapNotNull {
+            document.select("div.gridmax-related-posts-list div.gridmax-related-post-item-thumbnail gridmax-related-post-item-child").mapNotNull {
                 it.toSearchResult()
             }
 
@@ -98,33 +98,27 @@ class Pxxbay : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        if (data.contains("doodstream")) {
-            val doc = app.get(data).document
-            doc.select("div.video-container iframe").map { fixUrl(it.attr("src")) }
-                .apmap { source ->
-                    safeApiCall {
-                        when {
-                            source.startsWith("https://doodstream.com") -> app.get(
-                                source,
-                                referer = "$mainUrl/"
-                            ).document.select("ul.list-server-items li")
-                                .apmap {
-                                    loadExtractor(
-                                        it.attr("data-video").substringBefore("=https://subload"),
-                                        "$mainUrl/",
-                                        subtitleCallback,
-                                        callback
-                                    )
-                                }
-                            else -> loadExtractor(source, "$mainUrl/", subtitleCallback, callback)
-                        }
-                    }
-                }
+        val iframe = app.get(data).document.select("div.video-container iframe").attr("src")
+        
+        if (iframe.startsWith(mainUrl)) {
+            val video = app.get(iframe, referer = data).document.select("div#video_player video").attr("src")
+            callback.invoke(
+                ExtractorLink(
+                    this.name,
+                    this.name,
+                    video,
+                    "$mainUrl/",
+                    Qualities.Unknown.value,
+                    INFER_TYPE,
+                    headers = mapOf(
+                        "Range" to "bytes=0-",
+                    ),
+                )
+            )
         } else {
-            loadExtractor(data, "$mainUrl/", subtitleCallback, callback)
+            loadExtractor(iframe, "$mainUrl/", subtitleCallback, callback)
         }
 
         return true
-    } 
+    }
 }
-
