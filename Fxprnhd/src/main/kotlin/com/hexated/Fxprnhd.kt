@@ -33,7 +33,10 @@ class Fxprnhd : MainAPI() {
         page: Int,
         request: MainPageRequest
     ): HomePageResponse {
-        val document = app.get(request.data + page).document
+        val document =  if (page == 1) {
+            app.get(request.data.removeSuffix("page/")).document
+        } else {
+            app.get(request.data + page).document
         val home =
             document.select("div.videos-list > article")
                 .mapNotNull {

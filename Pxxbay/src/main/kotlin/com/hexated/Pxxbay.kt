@@ -29,7 +29,10 @@ class Pxxbay : MainAPI() {
         page: Int,
         request: MainPageRequest
     ): HomePageResponse {
-        val document = app.get(request.data + page).document
+        val document =  if (page == 1) {
+            app.get(request.data.removeSuffix("page/")).document
+        } else {
+            app.get(request.data + page).document
         val home =
             document.select("div.gridmax-posts div.gridmax-grid-post-thumbnail gridmax-grid-post-block")
                 .mapNotNull {
