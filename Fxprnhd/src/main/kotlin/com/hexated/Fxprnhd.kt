@@ -132,3 +132,4 @@ class Fxprnhd : MainAPI() {
 
         return true
     }
+}
