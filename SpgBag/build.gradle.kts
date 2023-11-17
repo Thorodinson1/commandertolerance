@@ -1,4 +1,4 @@
-version = 3
+version = 4
 
 
 cloudstream {
@@ -17,10 +17,7 @@ cloudstream {
      * */
     status = 1 // will be 3 if unspecified
     tvTypes = listOf(
-        "TvSeries",
-        "Movie",
-        "Anime",
-        "Cartoon"
+        "NSFW",
     )
 
     iconUrl = "https://www.google.com/s2/favicons?domain=spankbang.com&sz=24"

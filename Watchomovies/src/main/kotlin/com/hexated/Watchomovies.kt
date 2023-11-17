@@ -14,7 +14,7 @@ class Watchomovies : MainAPI() {
     private var directUrl = mainUrl
     override var name = "Watchomovies"
     override val hasMainPage = true
-    override var lang = "hi"
+    override var lang = "en"
     override val hasDownloadSupport = true
     override val supportedTypes = setOf(TvType.NSFW)
 

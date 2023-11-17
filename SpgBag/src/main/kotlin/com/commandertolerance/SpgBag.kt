@@ -14,8 +14,7 @@ class SpgBag : MainAPI() {
     override val hasDownloadSupport = true
     override val vpnStatus = VPNStatus.MightBeNeeded
     override val supportedTypes = setOf(
-        TvType.Movie,
-        TvType.TvSeries,
+        TvType.NSFW,
         
     )
 
