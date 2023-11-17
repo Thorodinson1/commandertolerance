@@ -38,7 +38,7 @@ class Mlfnut : MainAPI() {
         page: Int,
         request: MainPageRequest
     ): HomePageResponse {
-        val document = app.get(request.data + page).document
+        val document = app.get(mainUrl).document
         val home =
             document.select("div.videos-list > article")
                 .mapNotNull {
