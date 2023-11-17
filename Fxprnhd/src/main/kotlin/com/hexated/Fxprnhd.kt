@@ -108,23 +108,27 @@ class Fxprnhd : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        val document = app.get(data).document
-        document.select("video #video").map { res ->
+
+        val iframe = app.get(data).document.select("div.responsive-player iframe").attr("src")
+        
+        if (iframe.startsWith(mainUrl)) {
+            val video = app.get(iframe, referer = data).document.select("video source").attr("src")
             callback.invoke(
                 ExtractorLink(
                     this.name,
                     this.name,
-                    res.attr("href")
-                        .replace(Regex("\\?download\\S+.mp4&"), "?") + "&rnd=${Date().time}",
-                    referer = data,
-                    quality = Regex("([0-9]+p),").find(res.text())?.groupValues?.get(1)
-                        .let { getQualityFromName(it) },
-                    headers = mapOf("Range" to "bytes=0-"),
+                    video,
+                    "$mainUrl/",
+                    Qualities.Unknown.value,
+                    INFER_TYPE,
+                    headers = mapOf(
+                        "Range" to "bytes=0-",
+                    ),
                 )
             )
+        } else {
+            loadExtractor(iframe, "$mainUrl/", subtitleCallback, callback)
         }
 
         return true
     }
-
-}
