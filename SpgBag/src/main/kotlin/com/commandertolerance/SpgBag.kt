@@ -98,25 +98,31 @@ class SpgBag : MainAPI() {
             subtitleCallback: (SubtitleFile) -> Unit,
             callback: (ExtractorLink) -> Unit
         ): Boolean {
-            val document = app.get(data).document
-            document.select("script").find { it.data().contains("var videoList =") }?.data()
-            ?.substringAfter("videoList = [")?.substringBefore("];")?.let { data ->
-                Regex("\"m3u8\":\"(\\S*?.mp4)\",").findAll(data).map { it.groupValues[1] }
-                    .toList()
-            }
-                  callback.invoke(
-            ExtractorLink(
-                this.name,
-                this.name,
-                data.replace("\\", ""),
-                referer = mainUrl,
-                quality = Qualities.Unknown.value,
-//                headers = mapOf("Range" to "bytes=0-"),
+           
+        val iframe = app.get(data).document.select("div.main_video_player").attr("video")
+        
+        if (iframe.startsWith(mainUrl)) {
+            val video = app.get(iframe, referer = data).document.select("video source").attr("src")
+            callback.invoke(
+                ExtractorLink(
+                    this.name,
+                    this.name,
+                    video,
+                    "$mainUrl/",
+                    Qualities.Unknown.value,
+                    INFER_TYPE,
+                    headers = mapOf(
+                        "Range" to "bytes=18366446-",
+                    ),
+                )
             )
-        )
-        return true
-     }
+        } else {
+            loadExtractor(iframe, "$mainUrl/", subtitleCallback, callback)
+        }
 
+        return true
+    }
+}
 
 
 
