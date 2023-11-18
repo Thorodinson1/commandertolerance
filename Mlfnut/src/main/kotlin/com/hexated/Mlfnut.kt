@@ -38,9 +38,11 @@ class Mlfnut : MainAPI() {
         page: Int,
         request: MainPageRequest
     ): HomePageResponse {
-        val document = app.get(mainUrl).document
+        val url = request.data + page
+
+        val soup = app.get(url).document
         val home =
-            document.select("div.videos-list > article")
+            soup.select("div.videos-list > article")
                 .mapNotNull {
                     it.toSearchResult()
                 }
