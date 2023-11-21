@@ -52,7 +52,7 @@ class Fullprn : MainAPI() {
 
     private fun Element.toSearchResult(): SearchResponse? {
         val title = this.selectFirst("div.video-title > a")?.text() ?: return null
-        val href = fixUrl(this.selectFirst("a")!!.attr("href"))
+       val href = fixUrl(mainUrl + this.selectFirst("a")!!.attr("href"))
         val posterUrl = fixUrlNull(this.select("img").attr("src"))
         return newMovieSearchResponse(title, href, TvType.Movie) {
             this.posterUrl = posterUrl
