@@ -112,7 +112,7 @@ class Fullprn : MainAPI() {
 
         val iframe = app.get(data).document.select("div.responsive-player iframe").attr("src")
         
-        if (iframe.startsWith(xiaoshenke.net)) {
+        if (iframe.startsWith(mainUrl)) {
             val video = app.get(iframe, referer = data).document.select("video source").attr("src")
             callback.invoke(
                 ExtractorLink(
