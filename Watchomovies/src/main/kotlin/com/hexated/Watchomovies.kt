@@ -10,7 +10,7 @@ import org.jsoup.nodes.Element
 import java.net.URI
 
 class Watchomovies : MainAPI() {
-    override var mainUrl = "https://watchomovies.beauty"
+    override var mainUrl = "https://watchomovies.lat"
     private var directUrl = mainUrl
     override var name = "Watchomovies"
     override val hasMainPage = true
