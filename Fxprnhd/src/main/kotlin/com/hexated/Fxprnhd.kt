@@ -84,9 +84,9 @@ class Fxprnhd : MainAPI() {
         val title = document.selectFirst("div.title-views > h1")?.text()?.trim().toString()
         val poster =
             fixUrlNull(document.selectFirst("meta[property=og:image]")?.attr("content").toString())
-        val tags = document.select("div.tags-list.a > a").map { it.text() }
-        val description = document.select("div.desc > br").text().trim()
-        val actors = document.select("div.info div:nth-child(6) > a").map { it.text() }
+        val tags = document.select("div.tags-list > i").map { it.text() }
+        val description = document.select("div#rmjs-1 p:nth-child(1) > br").text().trim()
+        val actors = document.select("div#rmjs-1 p:nth-child(1) a:nth-child(2) > strong").map { it.text() }
         
         val recommendations =
             document.select("div.videos-list > article").mapNotNull {
